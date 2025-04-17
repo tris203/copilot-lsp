@@ -3,6 +3,33 @@ local utils = require("copilot-lsp.util")
 
 local M = {}
 
+local nes_ext
+local nes_ns = vim.api.nvim_create_namespace("copilot-nes")
+
+---@param edit copilotInlineEdit
+local function display_nes(edit)
+    dd("trying to display")
+    local bufnr = vim.uri_to_bufnr(edit.textDocument.uri)
+    if edit.text:match("\n") then
+        assert(false, "multi line edits not supported yet")
+    end
+
+    nes_ext = vim.api.nvim_buf_set_extmark(bufnr, nes_ns, edit.range.start.line, edit.range.start.character, {
+        id = nes_ext,
+        virt_lines = { { { edit.text, "Comment" } } },
+    })
+
+    --create accept and decline keymaps
+    vim.keymap.set("n", "<leader>xa", function()
+        utils.apply_inline_edit(edit)
+        vim.api.nvim_buf_del_extmark(bufnr, nes_ns, nes_ext)
+    end, { buffer = bufnr })
+
+    vim.keymap.set("n", "<leader>xd", function()
+        vim.api.nvim_buf_del_extmark(bufnr, nes_ns, nes_ext)
+    end, { buffer = bufnr })
+end
+
 ---@param err lsp.ResponseError?
 ---@param result copilotInlineEditResponse
 local function handle_nes_response(err, result)
@@ -21,7 +48,8 @@ local function handle_nes_response(err, result)
     end
 
     local edit = result.edits[1]
-    utils.apply_inline_edit(edit)
+    display_nes(edit)
+    -- utils.apply_inline_edit(edit)
 end
 
 ---@param copilot_lss vim.lsp.Client?
