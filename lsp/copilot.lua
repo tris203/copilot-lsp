@@ -1,11 +1,13 @@
 ---@type vim.lsp.Config
 return {
+    --NOTE: This name means that existing blink completion works
     name = "copilot",
     cmd = {
         "copilot-language-server",
         "--stdio",
     },
     init_options = {
+        --TODO: Grab versions from the editor
         editorInfo = { name = "neovim", version = "0.11" },
         editorPluginInfo = {
             name = "Github Copilot LSP for Neovim",
@@ -17,7 +19,7 @@ return {
             enabled = true,
         },
     },
-    root_markers = { ".git" },
+    root_dir = vim.uv.cwd(),
     on_init = function(client)
         vim.api.nvim_set_hl(0, "NesAdd", { link = "DiffAdd", default = true })
         vim.api.nvim_set_hl(0, "NesDelete", { link = "DiffDelete", default = true })
@@ -26,10 +28,12 @@ return {
         local nes = require("copilot-lsp.nes")
         local inline_completion = require("copilot-lsp.completion")
 
+        -- TODO: make this configurable for key maps, or just expose commands to map in config
         vim.keymap.set("i", "<c-i>", function()
             inline_completion.request_inline_completion(1)
         end)
 
+        --TODO: This should go on an auto command
         vim.keymap.set("n", "<leader>x", function()
             nes.request_nes(client)
         end)

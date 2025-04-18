@@ -17,8 +17,9 @@ local function handle_inlineCompletion_response(results, _ctx, _config)
     end
 
     for _, result in pairs(results1) do
+        --TODO: Ghost text for completions
         -- This is where we show the completion results
-        -- dd(result)
+        -- However, the LSP being named "copilot" is enough for blink-cmp to show the completion
     end
 end
 
@@ -31,6 +32,7 @@ function M.request_inline_completion(type)
             triggerKind = type,
         },
         formattingOptions = {
+            --TODO: Grab this from editor also
             tabSize = 4,
             insertSpaces = true,
         },
