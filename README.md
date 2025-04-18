@@ -24,8 +24,7 @@
 ### Screenshots
 
 #### NES
+![JS Correction](https://github.com/user-attachments/assets/8941f8f9-7d1b-4521-b8e9-f1dcd12d31e9)
+![Go Insertion](https://github.com/user-attachments/assets/2c0c4ad9-873b-4860-9eff-ecdb76007234)
 
-![JS Correction](https://github.com/user-attachments/assets/ae01b3b8-6d42-46fd-b138-4134a78a6829)
-![Go Insertion](https://github.com/user-attachments/assets/c8725447-6a5f-455c-a050-a64c415bf854)
-
-<https://github.com/user-attachments/assets/807042bc-1ecb-4a5f-8928-418293e7999b>
+https://github.com/user-attachments/assets/1d5bed4a-fd0a-491f-91f3-a3335cc28682
