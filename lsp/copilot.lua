@@ -19,6 +19,10 @@ return {
     },
     root_markers = { ".git" },
     on_init = function(client)
+        vim.api.nvim_set_hl(0, "NesAdd", { link = "DiffAdd", default = true })
+        vim.api.nvim_set_hl(0, "NesDelete", { link = "DiffDelete", default = true })
+        vim.api.nvim_set_hl(0, "NesApply", { link = "DiffText", default = true })
+
         local nes = require("copilot-lsp.nes")
         local inline_completion = require("copilot-lsp.completion")
 
@@ -28,6 +32,10 @@ return {
 
         vim.keymap.set("n", "<leader>x", function()
             nes.request_nes(client)
+        end)
+
+        vim.keymap.set("n", "<leader>xa", function()
+            nes.apply_pending_nes(nil, { trigger = true, jump = true }, client)
         end)
 
         local au = vim.api.nvim_create_augroup("copilot-language-server", { clear = true })

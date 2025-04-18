@@ -18,7 +18,7 @@ local function handle_inlineCompletion_response(results, _ctx, _config)
 
     for _, result in pairs(results1) do
         -- This is where we show the completion results
-        dd(result)
+        -- dd(result)
     end
 end
 
