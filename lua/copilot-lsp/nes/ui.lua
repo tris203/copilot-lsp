@@ -38,33 +38,31 @@ function M._display_next_suggestion(edits, ns_id)
     local ui = {}
     local deleted_lines_count = suggestion.range["end"].line - suggestion.range.start.line
     local added_lines = vim.split(suggestion.newText, "\n")
-    local added_lines_count = suggestion.newText == "" and 0 or #added_lines - 1
+    local added_lines_count = suggestion.newText == "" and 0 or #added_lines
     local same_line = 0
 
-    if deleted_lines_count == 0 and added_lines_count == 0 then
+    if deleted_lines_count == 0 and added_lines_count == 1 then
         ---changing within line
         deleted_lines_count = 1
-        added_lines_count = 1
         same_line = 1
-        added_lines = { suggestion.newText }
     end
 
     if deleted_lines_count > 0 then
+        -- Deleted range red highlight
         vim.api.nvim_buf_set_extmark(bufnr, ns_id, suggestion.range.start.line, 0, {
             hl_group = "NesDelete",
             end_row = suggestion.range["end"].line + 1,
         })
     end
     if added_lines_count > 0 then
+        -- Create space for float
         local virt_lines = {}
         for _ = 1, added_lines_count do
             table.insert(virt_lines, {
                 { "", "Normal" },
             })
         end
-        local line = suggestion.range.start.line + deleted_lines_count - 1 + same_line
-
-        vim.api.nvim_buf_set_extmark(bufnr, ns_id, line, 0, {
+        vim.api.nvim_buf_set_extmark(bufnr, ns_id, suggestion.range["end"].line, 0, {
             virt_lines = virt_lines,
         })
 
@@ -81,8 +79,8 @@ function M._display_next_suggestion(edits, ns_id)
         local preview_winnr = vim.api.nvim_open_win(preview_bufnr, false, {
             relative = "cursor",
             width = win_width - offset,
-            height = (#added_lines + same_line) - 1,
-            row = (suggestion.range["end"].line + same_line) - cursor[1] + 1,
+            height = #added_lines,
+            row = (suggestion.range["end"].line + deleted_lines_count + 1) - cursor[1],
             col = 0,
             style = "minimal",
             border = "none",
