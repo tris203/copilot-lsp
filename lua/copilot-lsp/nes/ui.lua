@@ -52,7 +52,7 @@ function M._display_next_suggestion(edits, ns_id)
     if deleted_lines_count > 0 then
         vim.api.nvim_buf_set_extmark(bufnr, ns_id, suggestion.range.start.line, 0, {
             hl_group = "NesDelete",
-            end_line = suggestion.range["end"].line,
+            end_row = suggestion.range["end"].line + 1,
         })
     end
     if added_lines_count > 0 then
