@@ -74,8 +74,13 @@ end
 ---@param edits copilotlsp.InlineEdit[]
 ---@param ns_id integer
 function M._display_next_suggestion(edits, ns_id)
+    local state = vim.b[vim.api.nvim_get_current_buf()].nes_state
+    if state then
+        M.clear_suggestion(vim.api.nvim_get_current_buf(), ns_id)
+    end
+
     if not edits or #edits == 0 then
-        vim.notify("No suggestion available", vim.log.levels.INFO)
+        -- vim.notify("No suggestion available", vim.log.levels.INFO)
         return
     end
     local bufnr = vim.uri_to_bufnr(edits[1].textDocument.uri)
