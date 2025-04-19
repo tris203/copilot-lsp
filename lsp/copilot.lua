@@ -34,6 +34,8 @@ return {
         end)
 
         --TODO: This should go on an auto command
+        --I would like to debounce this, and call it automatically
+        --but we need to work on the clean up logic/tracking for the UI
         vim.keymap.set("n", "<leader>x", function()
             nes.request_nes(client)
         end)
