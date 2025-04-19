@@ -10,7 +10,7 @@ local nes_ns = vim.api.nvim_create_namespace("copilot-nes")
 ---@param result copilotlsp.copilotInlineEditResponse
 local function handle_nes_response(err, result)
     if err then
-        vim.notify(err.message)
+        -- vim.notify(err.message)
         return
     end
     for _, edit in ipairs(result.edits) do

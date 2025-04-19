@@ -33,13 +33,6 @@ return {
             inline_completion.request_inline_completion(1)
         end)
 
-        --TODO: This should go on an auto command
-        --I would like to debounce this, and call it automatically
-        --but we need to work on the clean up logic/tracking for the UI
-        vim.keymap.set("n", "<leader>x", function()
-            nes.request_nes(client)
-        end)
-
         vim.keymap.set("n", "<leader>xa", function()
             nes.apply_pending_nes(nil, { trigger = true, jump = true }, client)
         end)
@@ -48,6 +41,14 @@ return {
         vim.api.nvim_create_autocmd("TextChangedI", {
             callback = function()
                 inline_completion.request_inline_completion(2)
+            end,
+            group = au,
+        })
+
+        vim.api.nvim_create_autocmd({ "TextChangedI", "TextChanged" }, {
+            callback = function()
+                local debounced_request = require("copilot-lsp.util").debounce(nes.request_nes, 500)
+                debounced_request(client)
             end,
             group = au,
         })
