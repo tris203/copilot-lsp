@@ -1,1 +1,1 @@
-globals = { "vim", "describe", "it", "before_each", "after_each", "assert", "async" }
+globals = { "vim", "describe", "it", "before_each", "after_each", "assert", "async", "MiniTest" }
