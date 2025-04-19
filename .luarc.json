@@ -10,6 +10,7 @@
         "describe",
         "it",
         "before_each",
+        "MiniTest",
         "after_each"
     ]
 }
