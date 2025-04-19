@@ -31,11 +31,7 @@ function M.request_nes(copilot_lss)
 end
 
 ---@param bufnr? integer
----@param opts? nes.Apply.Opts
----@param client vim.lsp.Client
-function M.apply_pending_nes(bufnr, opts, client)
-    opts = opts or {}
-
+function M.apply_pending_nes(bufnr)
     bufnr = bufnr and bufnr > 0 and bufnr or vim.api.nvim_get_current_buf()
 
     ---@type copilotlsp.InlineEdit
@@ -45,11 +41,6 @@ function M.apply_pending_nes(bufnr, opts, client)
     end
     utils.apply_inline_edit(state)
     nes_ui.clear_suggestion(bufnr, nes_ns)
-    if opts.trigger then
-        vim.schedule(function()
-            M.request_nes(client)
-        end)
-    end
 end
 
 return M
