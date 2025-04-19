@@ -24,6 +24,53 @@ function M.clear_suggestion(bufnr, ns_id)
 end
 
 ---@private
+---@param suggestion copilotlsp.InlineEdit
+---@return nes.LineCalculationResult
+function M._calculate_lines(suggestion)
+    local deleted_lines_count = suggestion.range["end"].line - suggestion.range.start.line
+    local added_lines = vim.split(suggestion.newText, "\n")
+    local added_lines_count = suggestion.newText == "" and 0 or #added_lines
+    local same_line = 0
+
+    if deleted_lines_count == 0 and added_lines_count == 1 then
+        ---changing within line
+        deleted_lines_count = 1
+        same_line = 1
+    end
+
+    -- Calculate positions for delete highlight extmark
+    ---@type nes.DeleteExtmark
+    local delete_extmark = {
+        row = suggestion.range.start.line,
+        end_row = suggestion.range["end"].line + 1,
+    }
+
+    -- Calculate positions for virtual lines extmark
+    ---@type nes.VirtLinesExtmark
+    local virt_lines_extmark = {
+        row = suggestion.range["end"].line,
+        virt_lines_count = added_lines_count,
+    }
+
+    -- Calculate positions for floating window
+    ---@type nes.FloatWin
+    local float_win = {
+        height = #added_lines,
+        row = suggestion.range["end"].line + deleted_lines_count + 1,
+    }
+
+    return {
+        deleted_lines_count = deleted_lines_count,
+        added_lines = added_lines,
+        added_lines_count = added_lines_count,
+        same_line = same_line,
+        delete_extmark = delete_extmark,
+        virt_lines_extmark = virt_lines_extmark,
+        float_win = float_win,
+    }
+end
+
+---@private
 ---@param edits copilotlsp.InlineEdit[]
 ---@param ns_id integer
 function M._display_next_suggestion(edits, ns_id)
@@ -36,38 +83,29 @@ function M._display_next_suggestion(edits, ns_id)
     local suggestion = edits[1]
 
     local ui = {}
-    local deleted_lines_count = suggestion.range["end"].line - suggestion.range.start.line
-    local added_lines = vim.split(suggestion.newText, "\n")
-    local added_lines_count = suggestion.newText == "" and 0 or #added_lines
-    local same_line = 0
+    local lines = M._calculate_lines(suggestion)
 
-    if deleted_lines_count == 0 and added_lines_count == 1 then
-        ---changing within line
-        deleted_lines_count = 1
-        same_line = 1
-    end
-
-    if deleted_lines_count > 0 then
+    if lines.deleted_lines_count > 0 then
         -- Deleted range red highlight
-        vim.api.nvim_buf_set_extmark(bufnr, ns_id, suggestion.range.start.line, 0, {
+        vim.api.nvim_buf_set_extmark(bufnr, ns_id, lines.delete_extmark.row, 0, {
             hl_group = "NesDelete",
-            end_row = suggestion.range["end"].line + 1,
+            end_row = lines.delete_extmark.end_row,
         })
     end
-    if added_lines_count > 0 then
+    if lines.added_lines_count > 0 then
         -- Create space for float
         local virt_lines = {}
-        for _ = 1, added_lines_count do
+        for _ = 1, lines.virt_lines_extmark.virt_lines_count do
             table.insert(virt_lines, {
                 { "", "Normal" },
             })
         end
-        vim.api.nvim_buf_set_extmark(bufnr, ns_id, suggestion.range["end"].line, 0, {
+        vim.api.nvim_buf_set_extmark(bufnr, ns_id, lines.virt_lines_extmark.row, 0, {
             virt_lines = virt_lines,
         })
 
         local preview_bufnr = vim.api.nvim_create_buf(false, true)
-        vim.api.nvim_buf_set_lines(preview_bufnr, 0, -1, false, added_lines)
+        vim.api.nvim_buf_set_lines(preview_bufnr, 0, -1, false, lines.added_lines)
         vim.bo[preview_bufnr].modifiable = false
         vim.bo[preview_bufnr].buflisted = false
         vim.bo[preview_bufnr].bufhidden = "wipe"
@@ -79,8 +117,8 @@ function M._display_next_suggestion(edits, ns_id)
         local preview_winnr = vim.api.nvim_open_win(preview_bufnr, false, {
             relative = "cursor",
             width = win_width - offset,
-            height = #added_lines,
-            row = (suggestion.range["end"].line + deleted_lines_count + 1) - cursor[1],
+            height = lines.float_win.height,
+            row = lines.float_win.row - cursor[1],
             col = 0,
             style = "minimal",
             border = "none",
