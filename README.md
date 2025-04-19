@@ -17,6 +17,20 @@
 - Sign In Flow
 - Status Notification
 
+## Usage
+To use the plugin, add the following to your Neovim configuration:
+```lua
+return {
+    "copilotlsp-nvim/copilot-lsp",
+    init = function()
+        vim.lsp.enable("copilot")
+        vim.keymap.set("n", "<leader>xa", function()
+            require("copilot-lsp.nes").apply_pending_nes()
+        end)
+    end,
+}
+```
+
 # Requirements
 
 - Copilot LSP installed via Mason or system and on PATH

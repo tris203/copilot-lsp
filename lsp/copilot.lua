@@ -50,10 +50,6 @@ return {
             group = au,
         })
 
-        vim.keymap.set("n", "<leader>xa", function()
-            require("copilot-lsp.nes").apply_pending_nes()
-        end)
-
         --NOTE: didFocus
         vim.api.nvim_create_autocmd("BufEnter", {
             callback = function()
